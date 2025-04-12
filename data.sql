@@ -1,10 +1,10 @@
 INSERT INTO providers(name) VALuES
     ('suilend'),
-    ('naviprotocol');
+    ('navi');
 
 INSERT INTO tokens(name) VALUES
-    ('Sui'),
-    ('USDC');
+    ('sui'),
+    ('usdc');
 
 INSERT INTO operations(name) VALUES
     ('borrow'),
