@@ -1,10 +1,10 @@
 use anyhow::Result;
-use chromiumoxide::Page;
+use chromiumoxide::Browser;
 use futures::{StreamExt, stream};
 
-use crate::{operation::Operation, token::Token, util};
+use crate::{browser, database::History, operation::Operation, token::Token};
 
-use super::Data;
+use super::Provider;
 
 const TOKEN_SELECTOR: &str = "tr.MuiTableRow-root > td:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > p:nth-child(1)";
 const APR_SELECTOR: &str = ".MuiTableBody-root > tr > td:nth-child(3) p:nth-child(1)";
@@ -20,28 +20,38 @@ impl Navi {
         }
     }
 
-    pub async fn fetch(operation: Operation, page: &Page) -> Result<Vec<Data>> {
+    pub async fn fetch(operation: Operation, browser: &Browser) -> Result<Vec<History>> {
+        let page = browser::create_steath_page(browser).await?;
+
         let link = Self::get_link(operation);
         page.goto(link).await?;
+        page.wait_for_navigation().await?;
 
-        let (tokens, aprs) = tokio::try_join!(
-            page.find_elements(TOKEN_SELECTOR),
-            page.find_elements(APR_SELECTOR),
-        )?;
+        let tokens = page.find_elements(TOKEN_SELECTOR).await?;
+        let aprs = page.find_elements(APR_SELECTOR).await?;
 
         let tokens = stream::iter(tokens)
-            .map(util::parse::<String>)
-            .buffer_unordered(20)
-            .map(|token| token.unwrap());
+            .map(|token| async move { token.inner_text().await.unwrap().unwrap() })
+            .buffer_unordered(20);
         let aprs = stream::iter(aprs)
-            .map(util::parse::<f32>)
-            .buffer_unordered(20)
-            .map(|apr| apr.unwrap());
+            .map(|apr| async move {
+                let apr_raw = apr.inner_text().await.unwrap().unwrap();
+                apr_raw[0..apr_raw.len() - 1].parse::<f32>().unwrap()
+            })
+            .buffer_unordered(20);
 
         let data = tokens
             .zip(aprs)
             .filter_map(|(token, apr)| async move {
-                token.parse::<Token>().map(|token| Data { token, apr }).ok()
+                token
+                    .parse::<Token>()
+                    .map(|token| History {
+                        provider: Provider::Navi,
+                        operation,
+                        token,
+                        apr,
+                    })
+                    .ok()
             })
             .collect()
             .await;
