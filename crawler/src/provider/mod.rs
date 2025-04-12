@@ -1,11 +1,14 @@
-use chrono::{DateTime, Utc};
+mod navi;
+
 use serde::{Deserialize, Serialize};
 use strum::IntoStaticStr;
 
+use crate::token::Token;
+
 #[derive(Serialize, Deserialize)]
-struct History {
+struct Data {
+    pub token: Token,
     pub apr: f32,
-    pub created_at: DateTime<Utc>,
 }
 
 #[derive(IntoStaticStr)]
