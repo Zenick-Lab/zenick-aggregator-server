@@ -2,9 +2,8 @@ use std::str::FromStr;
 
 use anyhow::bail;
 use serde::{Deserialize, Serialize};
-use strum::IntoStaticStr;
 
-#[derive(IntoStaticStr, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub enum Token {
     Sui,
     Usdc,
@@ -18,6 +17,15 @@ impl FromStr for Token {
             "sui" => Ok(Token::Sui),
             "usdc" => Ok(Token::Usdc),
             _ =>  bail!("invalid token name")
+        }
+    }
+}
+
+impl Token {
+    pub const fn into_str(self) -> &'static str {
+        match self {
+            Token::Sui => "sui",
+            Token::Usdc => "usdc"
         }
     }
 }
