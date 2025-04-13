@@ -10,20 +10,30 @@ use std::sync::Arc;
 use anyhow::Result;
 use chromiumoxide::Browser;
 use database::History;
-use operation::Operation;
 use provider::navi::Navi;
 use tokio::{sync::mpsc, task::JoinSet};
 
 async fn into_task(
-    fetch_func: impl AsyncFn(Operation, &Browser) -> Result<Vec<History>>,
-    operation: Operation,
+    fetch_func: impl AsyncFn(&Browser) -> Result<Vec<History>>,
     browser: Arc<Browser>,
     history_sender: mpsc::UnboundedSender<History>,
 ) {
-    let histories = fetch_func(operation, &browser).await.unwrap();
+    let histories = fetch_func(&browser).await.unwrap();
     for history in histories {
         history_sender.send(history).unwrap();
     }
+}
+
+async fn spawn_tasks(browser: Arc<Browser>, history_sender: mpsc::UnboundedSender<History>) {
+    let mut join_set = JoinSet::new();
+
+    join_set.spawn(into_task(
+        Navi::fetch,
+        browser.clone(),
+        history_sender.clone(),
+    ));
+
+    join_set.join_all().await;
 }
 
 #[tokio::main]
@@ -40,17 +50,8 @@ async fn main() -> Result<()> {
 
     let browser = Arc::new(browser::new().await);
 
-    let mut join_set = JoinSet::new();
+    spawn_tasks(browser, history_sender).await;
 
-    join_set.spawn(into_task(
-        Navi::fetch,
-        Operation::Lend,
-        browser,
-        history_sender.clone(),
-    ));
-    drop(history_sender);
-
-    join_set.join_all().await;
     history_task.await?;
 
     Ok(())
