@@ -20,7 +20,7 @@ impl Navi {
         }
     }
 
-    pub async fn fetch(operation: Operation, browser: &Browser) -> Result<Vec<History>> {
+    async fn _fetch(operation: Operation, browser: &Browser) -> Result<Vec<History>> {
         let page = browser::create_steath_page(browser).await?;
 
         let link = Self::get_link(operation);
@@ -57,5 +57,16 @@ impl Navi {
             .await;
 
         Ok(data)
+    }
+
+    pub async fn fetch(browser: &Browser) -> Result<Vec<History>> {
+        let (mut borrow, mut lend) = tokio::try_join!(
+            Self::_fetch(Operation::Borrow, browser),
+            Self::_fetch(Operation::Lend, browser),
+        )?;
+
+        borrow.append(&mut lend);
+
+        Ok(borrow)
     }
 }
