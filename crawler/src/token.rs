@@ -3,7 +3,7 @@ use std::str::FromStr;
 use anyhow::bail;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
 pub enum Token {
     Sui,
     Usdc,
