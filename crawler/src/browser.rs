@@ -1,10 +1,14 @@
 use anyhow::Result;
 use chromiumoxide::{Browser, BrowserConfig, Page};
 use futures::StreamExt;
+use tempfile::TempDir;
 
 pub async fn new() -> Browser {
+    let tmp = TempDir::new().unwrap();
+
     let (browser, mut handler) = Browser::launch(
         BrowserConfig::builder()
+            .user_data_dir(tmp.path())
             .viewport(None)
             .with_head()
             .build()
