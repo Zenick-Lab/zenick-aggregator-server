@@ -15,21 +15,30 @@ use provider::{navi::Navi, suilend::Suilend};
 use tokio::{sync::mpsc, task::JoinSet};
 
 async fn into_task(
-    fetch_func: impl AsyncFn() -> Result<Vec<History>>,
+    fetch_func: impl AsyncFn(&Browser) -> Result<Vec<History>>,
+    browser: Arc<Browser>,
     history_sender: mpsc::UnboundedSender<History>,
 ) {
-    let histories = fetch_func().await.unwrap();
+    let histories = fetch_func(&browser).await.unwrap();
     for history in histories {
         history_sender.send(history).unwrap();
     }
 }
 
-async fn spawn_tasks(history_sender: mpsc::UnboundedSender<History>) {
+async fn spawn_tasks(browser: Arc<Browser>, history_sender: mpsc::UnboundedSender<History>) {
     let mut join_set = JoinSet::new();
 
-    join_set.spawn(into_task(Navi::fetch, history_sender.clone()));
+    join_set.spawn(into_task(
+        Navi::fetch,
+        browser.clone(),
+        history_sender.clone(),
+    ));
 
-    join_set.spawn(into_task(Suilend::fetch, history_sender.clone()));
+    join_set.spawn(into_task(
+        Suilend::fetch,
+        browser.clone(),
+        history_sender.clone(),
+    ));
 
     join_set.join_all().await;
 }
@@ -46,7 +55,9 @@ async fn main() -> Result<()> {
         }
     });
 
-    spawn_tasks(history_sender).await;
+    let browser = Arc::new(browser::new().await);
+
+    spawn_tasks(browser, history_sender).await;
 
     history_task.await?;
 
