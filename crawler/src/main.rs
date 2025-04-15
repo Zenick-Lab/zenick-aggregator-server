@@ -65,7 +65,7 @@ async fn main() -> Result<()> {
     let history_task = tokio::spawn(async move {
         while let Some(history) = history_receiver.recv().await {
             if let Err(error) = database::insert_history(history, &database).await {
-                eprint!("{:?}", error);
+                tracing::error!("{:?}", error)
             }
         }
     });

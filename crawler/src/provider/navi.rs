@@ -23,11 +23,8 @@ impl Navi {
         page.wait_for_navigation().await?;
 
         let tokens = util::find_elements(TOKEN_SELECTOR, &page).await?;
-        eprintln!("DEBUGPRINT[148]: navi.rs:25: tokens={:#?}", tokens.len());
         let lend_aprs = util::find_elements(LEND_APR_SELECTOR, &page).await?;
-        eprintln!("DEBUGPRINT[149]: navi.rs:27: lend_aprs={:#?}", lend_aprs.len());
         let borrow_aprs = util::find_elements(BORROW_APR_SELECTOR, &page).await?;
-        eprintln!("DEBUGPRINT[150]: navi.rs:29: borrow_aprs={:#?}", borrow_aprs.len());
 
         let data = stream::iter(multizip((tokens, lend_aprs, borrow_aprs)))
             .map(|(token, lend_apr, borrow_apr)| async move {
@@ -46,20 +43,19 @@ impl Navi {
                 match token.parse::<Token>() {
                     Ok(token) => Some(stream::iter([
                         History {
-                            provider: Provider::Suilend,
+                            provider: Provider::Navi,
                             operation: Operation::Lend,
                             token,
                             apr: lend_apr,
                         },
                         History {
-                            provider: Provider::Suilend,
+                            provider: Provider::Navi,
                             operation: Operation::Borrow,
                             token,
                             apr: borrow_apr,
                         },
                     ])),
                     Err(_) => {
-                        eprintln!("DEBUGPRINT[144]: navi.rs:44: token={:#?}", token);
                         None
                     }
                 }
@@ -68,7 +64,6 @@ impl Navi {
             .collect()
             .await;
 
-        eprintln!("DEBUGPRINT[143]: suilend.rs:67: data={:#?}", data);
         Ok(data)
     }
 }
