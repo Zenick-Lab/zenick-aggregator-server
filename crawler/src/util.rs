@@ -1,6 +1,6 @@
 use std::{num::ParseFloatError, time::Duration};
 
-use anyhow::{Context, Result, bail};
+use anyhow::{Result, bail};
 use backon::{ExponentialBuilder, Retryable};
 use chromiumoxide::{Element, Page};
 
