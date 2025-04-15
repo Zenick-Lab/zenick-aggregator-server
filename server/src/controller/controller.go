@@ -1,9 +1,26 @@
 package controller
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+)
 
 func Controller() *gin.Engine {
 	r := gin.Default()
+
+	r.Use(func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+		c.Next()
+	})
+
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Token routes
 	r.GET("/tokens", GetAllTokens)
@@ -27,7 +44,8 @@ func Controller() *gin.Engine {
 	r.DELETE("/operations/:id", DeleteOperation)
 
 	// History routes
-	r.GET("/histories", GetAllHistories)
+	r.GET("/histories", GetHistoriesDetails)
+	r.GET("/histories/GetHistoriesByCondition", GetHistoriesByCondition)
 	r.GET("/histories/:id", GetHistoryByID)
 	r.POST("/histories", CreateHistory)
 	r.PUT("/histories/:id", UpdateHistory)
