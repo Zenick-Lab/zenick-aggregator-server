@@ -13,6 +13,8 @@ use chromiumoxide::Browser;
 use database::History;
 use provider::{navi::Navi, suilend::Suilend};
 use tokio::{sync::mpsc, task::JoinSet};
+use tracing::level_filters::LevelFilter;
+use tracing_subscriber::{fmt::time::ChronoLocal, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 
 async fn into_task(
     fetch_func: impl AsyncFn(&Browser) -> Result<Vec<History>>,
@@ -45,6 +47,19 @@ async fn spawn_tasks(browser: Arc<Browser>, history_sender: mpsc::UnboundedSende
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    tracing_subscriber::registry()
+        .with(
+            tracing_subscriber::fmt::layer()
+                .pretty()
+                .with_timer(ChronoLocal::rfc_3339())
+        )
+        .with(
+            EnvFilter::builder()
+                .with_default_directive(LevelFilter::INFO.into())
+                .from_env_lossy(),
+        )
+        .init();
+
     let database = database::new().await?;
     let (history_sender, mut history_receiver) = mpsc::unbounded_channel::<History>();
     let history_task = tokio::spawn(async move {
