@@ -12,7 +12,7 @@ use anyhow::Result;
 use chromiumoxide::Browser;
 use database::History;
 use futures::{Stream, StreamExt};
-use provider::{navi::Navi, suilend::Suilend};
+use provider::{haedal::Haedal, navi::Navi, suilend::Suilend};
 use tokio::{sync::mpsc, task::JoinSet};
 use tracing::level_filters::LevelFilter;
 use tracing_subscriber::{
@@ -51,6 +51,15 @@ async fn spawn_tasks(browser: Arc<Browser>, history_sender: mpsc::UnboundedSende
     let tx = history_sender.clone();
     join_set.spawn(async move {
         let histories = Navi::fetch(&b).await?;
+        send(histories, tx).await;
+
+        Ok::<_, anyhow::Error>(())
+    });
+
+    let b = browser.clone();
+    let tx = history_sender.clone();
+    join_set.spawn(async move {
+        let histories = Haedal::fetch(&b).await?;
         send(histories, tx).await;
 
         Ok::<_, anyhow::Error>(())

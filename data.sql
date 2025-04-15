@@ -1,6 +1,16 @@
 INSERT INTO providers(name) VALuES
     ('suilend'),
-    ('navi');
+    ('navi'),
+    ('cetus'),
+    ('haedal'),
+    ('scallop'),
+    ('bluefin'),
+    ('bucket'),
+    ('alpha_fi'),
+    ('aftermath_finance'),
+    ('kai_finance'),
+    ('kriya'),
+    ('volosui');
 
 INSERT INTO tokens(name) VALUES
     ('sui'),
