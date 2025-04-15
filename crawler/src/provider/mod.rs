@@ -1,8 +1,9 @@
 pub mod navi;
 pub mod suilend;
 pub mod haedal;
+pub mod scallop;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug)]
 pub enum Provider {
     Suilend,
     Navi,
