@@ -19,6 +19,17 @@ use tracing_subscriber::{
     EnvFilter, Layer, filter, fmt::time::ChronoLocal, layer::SubscriberExt, util::SubscriberInitExt,
 };
 
+fn send_sync(
+    histories: impl Iterator<Item = History>,
+    history_sender: mpsc::UnboundedSender<History>,
+) {
+    for history in histories {
+        if let Err(error) = history_sender.send(history) {
+            tracing::error!("{:?}", error);
+        }
+    }
+}
+
 async fn send(
     histories: impl Stream<Item = History>,
     history_sender: mpsc::UnboundedSender<History>,
