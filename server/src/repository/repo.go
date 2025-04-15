@@ -71,3 +71,7 @@ func (r *repository[T]) Delete(ctx context.Context, id uint) error {
 	}
 	return err
 }
+
+func (r *repository[T]) GetDB() *gorm.DB {
+	return r.db
+}

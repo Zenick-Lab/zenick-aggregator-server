@@ -1,0 +1,170 @@
+basePath: /
+definitions:
+  dto.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  dto.HistoryResponse:
+    properties:
+      apr:
+        type: number
+      created_at:
+        type: string
+      operation:
+        type: string
+      provider:
+        type: string
+      token:
+        type: string
+    type: object
+  model.History:
+    properties:
+      apr:
+        type: number
+      created_at:
+        type: string
+      id:
+        type: integer
+      operation:
+        $ref: '#/definitions/model.Operation'
+      operation_id:
+        type: integer
+      provider:
+        $ref: '#/definitions/model.Provider'
+      provider_id:
+        type: integer
+      token:
+        $ref: '#/definitions/model.Token'
+      token_id:
+        type: integer
+    type: object
+  model.Operation:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  model.Provider:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  model.Token:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+host: localhost:8000
+info:
+  contact: {}
+  description: This is the API documentation for Zenick Aggregator.
+  title: Zenick Aggregator API
+  version: "1.0"
+paths:
+  /histories:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve detailed history records with related entities
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.HistoryResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get detailed histories
+      tags:
+      - Histories
+  /histories/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a single history record by its ID
+      parameters:
+      - description: History ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.History'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get history by ID
+      tags:
+      - Histories
+  /histories/GetHistoriesByCondition:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve histories based on filter conditions
+      parameters:
+      - description: Provider name
+        in: query
+        name: provider
+        type: string
+      - description: Token name
+        in: query
+        name: token
+        type: string
+      - description: Operation name
+        in: query
+        name: operation
+        type: string
+      - description: APR value
+        in: query
+        name: apr
+        type: number
+      - description: Start date
+        in: query
+        name: from_date
+        type: string
+      - description: End date
+        in: query
+        name: to_date
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.HistoryResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get histories by condition
+      tags:
+      - Histories
+swagger: "2.0"
