@@ -1,9 +1,5 @@
-use anyhow::{Context, Result, ensure};
-use chromiumoxide::{Browser, Element};
-use futures::{
-    Stream, StreamExt,
-    stream::{self, FuturesUnordered},
-};
+use anyhow::{Context, Result};
+use chromiumoxide::Browser;
 
 use crate::{browser, database::History, operation::Operation, token::Token, util};
 
@@ -17,7 +13,7 @@ const STAKE_APR_SELECTOR: &str =
 pub struct Haedal;
 
 impl Haedal {
-    pub async fn fetch(browser: &Browser) -> Result<impl Stream<Item = History>> {
+    pub async fn fetch(browser: &Browser) -> Result<impl Iterator<Item = History>> {
         let page = browser::create_steath_page(browser).await?;
 
         page.goto(LINK).await?;
@@ -29,11 +25,12 @@ impl Haedal {
         let stake_apr = stake_apr.inner_text().await?.context("No apr")?;
         let stake_apr = util::parse_float(&stake_apr)?;
 
-        Ok(stream::iter([History {
+        Ok([History {
             provider: Provider::Haedal,
             token: Token::Sui,
             operation: Operation::Stake,
             apr: stake_apr,
-        }]))
+        }]
+        .into_iter())
     }
 }

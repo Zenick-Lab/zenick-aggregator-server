@@ -12,12 +12,23 @@ use anyhow::Result;
 use chromiumoxide::Browser;
 use database::History;
 use futures::{Stream, StreamExt};
-use provider::{haedal::Haedal, navi::Navi, suilend::Suilend};
+use provider::{haedal::Haedal, navi::Navi, scallop::Scallop, suilend::Suilend};
 use tokio::{sync::mpsc, task::JoinSet};
 use tracing::level_filters::LevelFilter;
 use tracing_subscriber::{
     EnvFilter, Layer, filter, fmt::time::ChronoLocal, layer::SubscriberExt, util::SubscriberInitExt,
 };
+
+fn send_sync(
+    histories: impl Iterator<Item = History>,
+    history_sender: mpsc::UnboundedSender<History>,
+) {
+    for history in histories {
+        if let Err(error) = history_sender.send(history) {
+            tracing::error!("{:?}", error);
+        }
+    }
+}
 
 async fn send(
     histories: impl Stream<Item = History>,
@@ -60,7 +71,15 @@ async fn spawn_tasks(browser: Arc<Browser>, history_sender: mpsc::UnboundedSende
     let tx = history_sender.clone();
     join_set.spawn(async move {
         let histories = Haedal::fetch(&b).await?;
-        send(histories, tx).await;
+        send_sync(histories, tx);
+
+        Ok::<_, anyhow::Error>(())
+    });
+
+    let tx = history_sender.clone();
+    join_set.spawn(async move {
+        let histories = Scallop::fetch().await?;
+        send_sync(histories, tx);
 
         Ok::<_, anyhow::Error>(())
     });
