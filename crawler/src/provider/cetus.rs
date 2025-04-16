@@ -1,11 +1,7 @@
 use anyhow::Result;
 use serde::Deserialize;
 
-use crate::{
-    database::LiquidityPoolHistory,
-    provider::Provider,
-    token::Token,
-};
+use crate::{database::LiquidityPoolHistory, provider::Provider, token::Token, util};
 
 const LINK: &str = "https://api-sui.cetus.zone/v2/sui/stats_pools?is_vaults=false&display_all_pools=false&has_mining=true&has_farming=true&no_incentives=true&order_by=-vol&limit=20&offset=0&coin_type=&pool=";
 
@@ -18,7 +14,7 @@ struct Coin {
 struct LiquidityPool {
     coin_a: Coin,
     coin_b: Coin,
-    total_apr: f32,
+    total_apr: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -35,9 +31,9 @@ pub struct Cetus;
 
 impl Cetus {
     pub async fn fetch() -> Result<impl Iterator<Item = LiquidityPoolHistory>> {
-        let market_data = reqwest::get(LINK).await?.json::<ApiResponse>().await?;
+        let response = reqwest::get(LINK).await?.json::<ApiResponse>().await?;
 
-        let data = market_data.data.lp_list.into_iter().filter_map(|pool| {
+        let data = response.data.lp_list.into_iter().filter_map(|pool| {
             match (
                 pool.coin_a.symbol.parse::<Token>(),
                 pool.coin_b.symbol.parse::<Token>(),
@@ -46,7 +42,7 @@ impl Cetus {
                     provider: Provider::Cetus,
                     token_a,
                     token_b,
-                    apr: pool.total_apr,
+                    apr: util::parse_float(&pool.total_apr).ok()? * 100.,
                 }),
                 _ => None,
             }
