@@ -19,9 +19,9 @@ use tracing_subscriber::{
     EnvFilter, Layer, filter, fmt::time::ChronoLocal, layer::SubscriberExt, util::SubscriberInitExt,
 };
 
-fn send_sync(
-    histories: impl Iterator<Item = History>,
-    history_sender: mpsc::UnboundedSender<History>,
+fn send_sync<Item>(
+    histories: impl Iterator<Item = Item>,
+    history_sender: mpsc::UnboundedSender<Item>,
 ) {
     for history in histories {
         if let Err(error) = history_sender.send(history) {
@@ -30,9 +30,9 @@ fn send_sync(
     }
 }
 
-async fn send(
-    histories: impl Stream<Item = History>,
-    history_sender: mpsc::UnboundedSender<History>,
+async fn send<Item>(
+    histories: impl Stream<Item = Item>,
+    history_sender: mpsc::UnboundedSender<Item>,
 ) {
     histories
         .for_each(move |history| {
