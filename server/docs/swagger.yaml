@@ -18,46 +18,17 @@ definitions:
       token:
         type: string
     type: object
-  model.History:
+  dto.LiquidityPoolHistoryResponse:
     properties:
       apr:
         type: number
       created_at:
         type: string
-      id:
-        type: integer
-      operation:
-        $ref: '#/definitions/model.Operation'
-      operation_id:
-        type: integer
       provider:
-        $ref: '#/definitions/model.Provider'
-      provider_id:
-        type: integer
-      token:
-        $ref: '#/definitions/model.Token'
-      token_id:
-        type: integer
-    type: object
-  model.Operation:
-    properties:
-      id:
-        type: integer
-      name:
         type: string
-    type: object
-  model.Provider:
-    properties:
-      id:
-        type: integer
-      name:
+      token_a:
         type: string
-    type: object
-  model.Token:
-    properties:
-      id:
-        type: integer
-      name:
+      token_b:
         type: string
     type: object
 host: localhost:8000
@@ -88,40 +59,11 @@ paths:
       summary: Get detailed histories
       tags:
       - Histories
-  /histories/{id}:
+  /histories/GetHistoryByCondition:
     get:
       consumes:
       - application/json
-      description: Retrieve a single history record by its ID
-      parameters:
-      - description: History ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.History'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-      summary: Get history by ID
-      tags:
-      - Histories
-  /histories/GetHistoriesByCondition:
-    get:
-      consumes:
-      - application/json
-      description: Retrieve histories based on filter conditions
+      description: Retrieve history based on filter conditions
       parameters:
       - description: Provider name
         in: query
@@ -135,27 +77,13 @@ paths:
         in: query
         name: operation
         type: string
-      - description: APR value
-        in: query
-        name: apr
-        type: number
-      - description: Start date
-        in: query
-        name: from_date
-        type: string
-      - description: End date
-        in: query
-        name: to_date
-        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/dto.HistoryResponse'
-            type: array
+            $ref: '#/definitions/dto.HistoryResponse'
         "400":
           description: Bad Request
           schema:
@@ -164,7 +92,56 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/dto.ErrorResponse'
-      summary: Get histories by condition
+      summary: Get history by condition
       tags:
       - Histories
+  /liquidityPoolHistories:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve detailed liquidityPoolHistory records with related entities
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.LiquidityPoolHistoryResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get detailed liquidityPoolHistories
+      tags:
+      - LiquidityPoolHistories
+  /liquidityPoolHistories/GetLiquidityPoolHistoryByCondition:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve Liquidity Pool History based on filter conditions
+      parameters:
+      - description: Provider name
+        in: query
+        name: provider
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.LiquidityPoolHistoryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get Liquidity Pool History by condition
+      tags:
+      - LiquidityPoolHistories
 swagger: "2.0"

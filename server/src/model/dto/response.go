@@ -8,6 +8,14 @@ type HistoryResponse struct {
 	CreatedAt string  `json:"created_at"`
 }
 
+type LiquidityPoolHistoryResponse struct {
+	Provider  string  `json:"provider"`
+	TokenA    string  `json:"token_a"`
+	TokenB    string  `json:"token_b"`
+	APR       float32 `json:"apr"`
+	CreatedAt string  `json:"created_at"`
+}
+
 type ErrorResponse struct {
 	Error string `json:"error"`
 }

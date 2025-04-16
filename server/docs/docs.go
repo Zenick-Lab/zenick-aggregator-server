@@ -47,9 +47,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/histories/GetHistoriesByCondition": {
+        "/histories/GetHistoryByCondition": {
             "get": {
-                "description": "Retrieve histories based on filter conditions",
+                "description": "Retrieve history based on filter conditions",
                 "consumes": [
                     "application/json"
                 ],
@@ -59,7 +59,7 @@ const docTemplate = `{
                 "tags": [
                     "Histories"
                 ],
-                "summary": "Get histories by condition",
+                "summary": "Get history by condition",
                 "parameters": [
                     {
                         "type": "string",
@@ -78,34 +78,13 @@ const docTemplate = `{
                         "description": "Operation name",
                         "name": "operation",
                         "in": "query"
-                    },
-                    {
-                        "type": "number",
-                        "description": "APR value",
-                        "name": "apr",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Start date",
-                        "name": "from_date",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "End date",
-                        "name": "to_date",
-                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.HistoryResponse"
-                            }
+                            "$ref": "#/definitions/dto.HistoryResponse"
                         }
                     },
                     "400": {
@@ -123,9 +102,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/histories/{id}": {
+        "/liquidityPoolHistories": {
             "get": {
-                "description": "Retrieve a single history record by its ID",
+                "description": "Retrieve detailed liquidityPoolHistory records with related entities",
                 "consumes": [
                     "application/json"
                 ],
@@ -133,23 +112,54 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Histories"
+                    "LiquidityPoolHistories"
                 ],
-                "summary": "Get history by ID",
+                "summary": "Get detailed liquidityPoolHistories",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.LiquidityPoolHistoryResponse"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/liquidityPoolHistories/GetLiquidityPoolHistoryByCondition": {
+            "get": {
+                "description": "Retrieve Liquidity Pool History based on filter conditions",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LiquidityPoolHistories"
+                ],
+                "summary": "Get Liquidity Pool History by condition",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "History ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
+                        "type": "string",
+                        "description": "Provider name",
+                        "name": "provider",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.History"
+                            "$ref": "#/definitions/dto.LiquidityPoolHistoryResponse"
                         }
                     },
                     "400": {
@@ -197,7 +207,7 @@ const docTemplate = `{
                 }
             }
         },
-        "model.History": {
+        "dto.LiquidityPoolHistoryResponse": {
             "type": "object",
             "properties": {
                 "apr": {
@@ -206,58 +216,13 @@ const docTemplate = `{
                 "created_at": {
                     "type": "string"
                 },
-                "id": {
-                    "type": "integer"
-                },
-                "operation": {
-                    "$ref": "#/definitions/model.Operation"
-                },
-                "operation_id": {
-                    "type": "integer"
-                },
                 "provider": {
-                    "$ref": "#/definitions/model.Provider"
-                },
-                "provider_id": {
-                    "type": "integer"
-                },
-                "token": {
-                    "$ref": "#/definitions/model.Token"
-                },
-                "token_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "model.Operation": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
                     "type": "string"
-                }
-            }
-        },
-        "model.Provider": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
                 },
-                "name": {
+                "token_a": {
                     "type": "string"
-                }
-            }
-        },
-        "model.Token": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
                 },
-                "name": {
+                "token_b": {
                     "type": "string"
                 }
             }

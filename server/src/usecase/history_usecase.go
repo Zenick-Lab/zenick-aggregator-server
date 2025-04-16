@@ -99,6 +99,45 @@ func (u *historyUsecase) GetHistoriesByCondition(ctx context.Context, req *dto.G
 	return responses, nil
 }
 
+func (u *historyUsecase) GetHistoryByCondition(ctx context.Context, req *dto.GetNewestHistoryRequest) (*dto.HistoryResponse, error) {
+	var history model.History
+
+	query := u.Repo.GetDB().WithContext(ctx).
+		Preload("Provider").
+		Preload("Token").
+		Preload("Operation").
+		Table("histories").
+		Joins("JOIN providers ON providers.id = histories.provider_id").
+		Joins("JOIN tokens ON tokens.id = histories.token_id").
+		Joins("JOIN operations ON operations.id = histories.operation_id")
+
+	if req.Provider != "" {
+		query = query.Where("providers.name ILIKE ?", "%"+req.Provider+"%")
+	}
+	if req.Token != "" {
+		query = query.Where("tokens.name ILIKE ?", "%"+req.Token+"%")
+	}
+	if req.Operation != "" {
+		query = query.Where("operations.name ILIKE ?", "%"+req.Operation+"%")
+	}
+
+	err := query.Order("created_at DESC").First(&history).Error
+	if err != nil {
+		u.log.Errorf("Error fetching newest history by condition: %v", err)
+		return nil, err
+	}
+
+	response := &dto.HistoryResponse{
+		Provider:  history.Provider.Name,
+		Token:     history.Token.Name,
+		Operation: history.Operation.Name,
+		APR:       history.APR,
+		CreatedAt: history.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
+	}
+
+	return response, nil
+}
+
 func (u *historyUsecase) GetHistoryByID(ctx context.Context, id uint) (*model.History, error) {
 	u.log.Infof("Fetching history with ID: %d", id)
 	return u.Repo.GetByID(ctx, id)

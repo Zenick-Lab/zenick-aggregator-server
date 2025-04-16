@@ -46,10 +46,15 @@ func Controller() *gin.Engine {
 	// History routes
 	r.GET("/histories", GetHistoriesDetails)
 	r.GET("/histories/GetHistoriesByCondition", GetHistoriesByCondition)
+	r.GET("/histories/GetHistoryByCondition", GetHistoryByCondition)
 	r.GET("/histories/:id", GetHistoryByID)
 	r.POST("/histories", CreateHistory)
 	r.PUT("/histories/:id", UpdateHistory)
 	r.DELETE("/histories/:id", DeleteHistory)
+
+	// Liquidity Pool History routes
+	r.GET("/liquidityPoolHistories", GetLiquidityPoolHistoriesDetails)
+	r.GET("/liquidityPoolHistories/GetLiquidityPoolHistoryByCondition", GetLiquidityPoolHistoryByCondition)
 
 	return r
 }

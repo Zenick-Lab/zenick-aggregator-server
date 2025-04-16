@@ -78,6 +78,7 @@ func main() {
 // 		&model.Token{},
 // 		&model.Operation{},
 // 		&model.History{},
+// 		&model.LiquidityPoolHistory{},
 // 	)
 // 	if err != nil {
 // 		log.Fatalf("Failed to migrate the database: %v", err)
@@ -88,7 +89,17 @@ func main() {
 // 	initDataSQL := `
 // 	INSERT INTO providers(name) VALUES
 // 		('suilend'),
-// 		('naviprotocol');
+// 		('naviprotocol'),
+// 		('cetus'),
+// 		('haedal'),
+// 		('scallop'),
+// 		('bluefin'),
+// 		('bucket'),
+// 		('alpha_fi'),
+// 		('aftermath_finance'),
+// 		('kai_finance'),
+// 		('kriya'),
+// 		('volosui');
 
 // 	INSERT INTO tokens(name) VALUES
 // 		('Sui'),
