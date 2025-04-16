@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO histories(\n                provider_id,\n                token_id,\n                operation_id,\n                apr\n            ) VALUES (\n                (SELECT id FROM providers WHERE name = $1),\n                (SELECT id FROM tokens WHERE name = $2),\n                (SELECT id FROM operations WHERE name = $3),\n                $4\n            )\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text",
+        "Float4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "7f619d80e9d5f80a599bc293b62df9bb4f362b1a5dafe6946d7df0520e68a1a1"
+}
