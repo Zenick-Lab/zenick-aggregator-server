@@ -10,7 +10,7 @@ use std::sync::Arc;
 
 use anyhow::Result;
 use chromiumoxide::Browser;
-use database::History;
+use database::{History, LiquidityPoolHistory};
 use futures::{Stream, StreamExt};
 use provider::{haedal::Haedal, navi::Navi, scallop::Scallop, suilend::Suilend};
 use tokio::{sync::mpsc, task::JoinSet};
@@ -46,7 +46,11 @@ async fn send<Item>(
         .await;
 }
 
-async fn spawn_tasks(browser: Arc<Browser>, history_sender: mpsc::UnboundedSender<History>) {
+async fn spawn_tasks(
+    browser: Arc<Browser>,
+    history_sender: mpsc::UnboundedSender<History>,
+    lp_history_sender: mpsc::UnboundedSender<LiquidityPoolHistory>
+) {
     let mut join_set = JoinSet::new();
 
     let b = browser.clone();
@@ -105,11 +109,24 @@ async fn main() -> Result<()> {
         )
         .init();
 
-    let database = database::new().await?;
+    let database = Arc::new(database::new().await?);
+
+    let d = database.clone();
     let (history_sender, mut history_receiver) = mpsc::unbounded_channel::<History>();
     let history_task = tokio::spawn(async move {
         while let Some(history) = history_receiver.recv().await {
-            if let Err(error) = database::insert_history(history, &database).await {
+            if let Err(error) = database::insert_history(history, &d).await {
+                tracing::error!("{:?}", error);
+            }
+        }
+    });
+
+    let d = database.clone();
+    let (lp_history_sender, mut lp_history_receiver) =
+        mpsc::unbounded_channel::<LiquidityPoolHistory>();
+    let lp_history_task = tokio::spawn(async move {
+        while let Some(history) = lp_history_receiver.recv().await {
+            if let Err(error) = database::insert_liquidity_pool_history(history, &d).await {
                 tracing::error!("{:?}", error);
             }
         }
@@ -119,7 +136,7 @@ async fn main() -> Result<()> {
 
     spawn_tasks(browser, history_sender).await;
 
-    history_task.await?;
+    tokio::try_join!(history_task, lp_history_task)?;
 
     Ok(())
 }
