@@ -1,0 +1,9 @@
+services:
+  backend:
+    container_name: aggregator-server
+    build:
+      context: ./server
+      dockerfile: ./Dockerfile
+    ports:
+      - 3000:3000
+    restart: always
