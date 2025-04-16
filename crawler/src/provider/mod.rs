@@ -2,6 +2,7 @@ pub mod navi;
 pub mod suilend;
 pub mod haedal;
 pub mod scallop;
+pub mod cetus;
 
 #[derive(Debug)]
 pub enum Provider {

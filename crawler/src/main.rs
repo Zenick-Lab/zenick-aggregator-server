@@ -10,18 +10,18 @@ use std::sync::Arc;
 
 use anyhow::Result;
 use chromiumoxide::Browser;
-use database::History;
+use database::{History, LiquidityPoolHistory};
 use futures::{Stream, StreamExt};
-use provider::{haedal::Haedal, navi::Navi, scallop::Scallop, suilend::Suilend};
+use provider::{cetus::Cetus, haedal::Haedal, navi::Navi, scallop::Scallop, suilend::Suilend};
 use tokio::{sync::mpsc, task::JoinSet};
 use tracing::level_filters::LevelFilter;
 use tracing_subscriber::{
     EnvFilter, Layer, filter, fmt::time::ChronoLocal, layer::SubscriberExt, util::SubscriberInitExt,
 };
 
-fn send_sync(
-    histories: impl Iterator<Item = History>,
-    history_sender: mpsc::UnboundedSender<History>,
+fn send_sync<Item>(
+    histories: impl Iterator<Item = Item>,
+    history_sender: mpsc::UnboundedSender<Item>,
 ) {
     for history in histories {
         if let Err(error) = history_sender.send(history) {
@@ -30,9 +30,9 @@ fn send_sync(
     }
 }
 
-async fn send(
-    histories: impl Stream<Item = History>,
-    history_sender: mpsc::UnboundedSender<History>,
+async fn send<Item>(
+    histories: impl Stream<Item = Item>,
+    history_sender: mpsc::UnboundedSender<Item>,
 ) {
     histories
         .for_each(move |history| {
@@ -46,7 +46,11 @@ async fn send(
         .await;
 }
 
-async fn spawn_tasks(browser: Arc<Browser>, history_sender: mpsc::UnboundedSender<History>) {
+async fn spawn_tasks(
+    browser: Arc<Browser>,
+    history_sender: mpsc::UnboundedSender<History>,
+    lp_history_sender: mpsc::UnboundedSender<LiquidityPoolHistory>,
+) {
     let mut join_set = JoinSet::new();
 
     let b = browser.clone();
@@ -84,7 +88,19 @@ async fn spawn_tasks(browser: Arc<Browser>, history_sender: mpsc::UnboundedSende
         Ok::<_, anyhow::Error>(())
     });
 
-    join_set.join_all().await;
+    let tx = lp_history_sender.clone();
+    join_set.spawn(async move {
+        let histories = Cetus::fetch().await?;
+        send_sync(histories, tx);
+
+        Ok::<_, anyhow::Error>(())
+    });
+
+    while let Some(res) = join_set.join_next().await {
+        if let Err(error) = res {
+            tracing::error!("error: {:?}", error);
+        }
+    }
 }
 
 #[tokio::main]
@@ -105,11 +121,26 @@ async fn main() -> Result<()> {
         )
         .init();
 
-    let database = database::new().await?;
+    let database = Arc::new(database::new().await?);
+
+    let d = database.clone();
     let (history_sender, mut history_receiver) = mpsc::unbounded_channel::<History>();
     let history_task = tokio::spawn(async move {
         while let Some(history) = history_receiver.recv().await {
-            if let Err(error) = database::insert_history(history, &database).await {
+            tracing::info!("Insert history: {:?}", history);
+            if let Err(error) = database::insert_history(history, &d).await {
+                tracing::error!("{:?}", error);
+            }
+        }
+    });
+
+    let d = database.clone();
+    let (lp_history_sender, mut lp_history_receiver) =
+        mpsc::unbounded_channel::<LiquidityPoolHistory>();
+    let lp_history_task = tokio::spawn(async move {
+        while let Some(history) = lp_history_receiver.recv().await {
+            tracing::info!("Insert lp history: {:?}", history);
+            if let Err(error) = database::insert_liquidity_pool_history(history, &d).await {
                 tracing::error!("{:?}", error);
             }
         }
@@ -117,9 +148,9 @@ async fn main() -> Result<()> {
 
     let browser = Arc::new(browser::new().await);
 
-    spawn_tasks(browser, history_sender).await;
+    spawn_tasks(browser, history_sender, lp_history_sender).await;
 
-    history_task.await?;
+    tokio::try_join!(history_task, lp_history_task)?;
 
     Ok(())
 }
