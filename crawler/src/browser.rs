@@ -6,7 +6,6 @@ pub async fn new() -> Browser {
     let (browser, mut handler) = Browser::launch(
         BrowserConfig::builder()
             .viewport(None)
-            .with_head()
             .build()
             .unwrap(),
     )

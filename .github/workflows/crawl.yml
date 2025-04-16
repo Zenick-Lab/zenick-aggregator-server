@@ -5,11 +5,17 @@ on:
   workflow_dispatch:
 
 jobs:
-  fetch-chapter:
+  crawl:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Chromium
+        uses: browser-actions/setup-chrome@v1
+        with:
+          install-dependencies: true
+          chrome-version: stable
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@master
