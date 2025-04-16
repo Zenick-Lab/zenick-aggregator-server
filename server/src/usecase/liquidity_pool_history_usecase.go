@@ -63,6 +63,12 @@ func (u *liquidityPoolHistoryUsecase) GetLiquidityPoolHistoryByCondition(ctx con
 	if req.Provider != "" {
 		query = query.Where("providers.name ILIKE ?", "%"+req.Provider+"%")
 	}
+	if req.TokenA != "" {
+		query = query.Where("token_a.name ILIKE ?", "%"+req.TokenA+"%")
+	}
+	if req.TokenB != "" {
+		query = query.Where("token_b.name ILIKE ?", "%"+req.TokenB+"%")
+	}
 
 	err := query.Order("created_at DESC").First(&history).Error
 	if err != nil {

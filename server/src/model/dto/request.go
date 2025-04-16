@@ -19,4 +19,6 @@ type GetNewestHistoryRequest struct {
 
 type GetNewestLiquidityPoolHistoryRequest struct {
 	Provider string `form:"provider"`
+	TokenA   string `form:"token_a"`
+	TokenB   string `form:"token_b"`
 }

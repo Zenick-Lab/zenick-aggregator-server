@@ -126,6 +126,14 @@ paths:
         in: query
         name: provider
         type: string
+      - description: Token A name
+        in: query
+        name: token_a
+        type: string
+      - description: Token B name
+        in: query
+        name: token_b
+        type: string
       produces:
       - application/json
       responses:

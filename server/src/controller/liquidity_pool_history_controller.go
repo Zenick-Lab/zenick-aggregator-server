@@ -33,6 +33,8 @@ func GetLiquidityPoolHistoriesDetails(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param provider query string false "Provider name"
+// @Param token_a query string false "Token A name"
+// @Param token_b query string false "Token B name"
 // @Success 200 {object} dto.LiquidityPoolHistoryResponse
 // @Failure 400 {object} dto.ErrorResponse
 // @Failure 500 {object} dto.ErrorResponse

@@ -153,6 +153,18 @@ const docTemplate = `{
                         "description": "Provider name",
                         "name": "provider",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Token A name",
+                        "name": "token_a",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Token B name",
+                        "name": "token_b",
+                        "in": "query"
                     }
                 ],
                 "responses": {
