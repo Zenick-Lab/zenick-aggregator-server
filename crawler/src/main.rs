@@ -96,7 +96,11 @@ async fn spawn_tasks(
         Ok::<_, anyhow::Error>(())
     });
 
-    join_set.join_all().await;
+    while let Some(res) = join_set.join_next().await {
+        if let Err(error) = res {
+            tracing::error!("error: {:?}", error);
+        }
+    }
 }
 
 #[tokio::main]
