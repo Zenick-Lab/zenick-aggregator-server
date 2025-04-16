@@ -4,8 +4,6 @@ import (
 	_ "Zenick-Lab/zenick-aggregator-server/docs"
 	"Zenick-Lab/zenick-aggregator-server/src/controller"
 	"log"
-	"os"
-	"strings"
 
 	"github.com/spf13/viper"
 )
@@ -16,24 +14,27 @@ import (
 // @host localhost:8000
 // @BasePath /
 func main() {
-	viper.SetConfigFile(".env")
-	viper.AutomaticEnv()
-	if err := viper.ReadInConfig(); err != nil {
-		log.Printf("error while reading config file: %s", err.Error())
-		return
-	}
-	log.Println("Config file loaded successfully")
+	// viper.SetConfigFile(".env")
+	// viper.AutomaticEnv()
+	// if err := viper.ReadInConfig(); err != nil {
+	// 	log.Printf("error while reading config file: %s", err.Error())
+	// 	return
+	// }
+	// log.Println("Config file loaded successfully")
 
-	for _, env := range viper.AllKeys() {
-		if viper.GetString(env) != "" {
-			_ = os.Setenv(env, viper.GetString(env))
-			_ = os.Setenv(strings.ToUpper(env), viper.GetString(env))
-		}
-	}
+	// for _, env := range viper.AllKeys() {
+	// 	if viper.GetString(env) != "" {
+	// 		_ = os.Setenv(env, viper.GetString(env))
+	// 		_ = os.Setenv(strings.ToUpper(env), viper.GetString(env))
+	// 	}
+	// }
+
+	viper.AutomaticEnv()
+	log.Println("Environment variables loaded")
 
 	router := controller.Controller()
 
-	if err := router.Run("localhost:8000"); err != nil {
+	if err := router.Run(":8000"); err != nil {
 		log.Fatalf("could not run Gin server: %v", err)
 	}
 }
