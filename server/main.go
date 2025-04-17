@@ -11,7 +11,7 @@ import (
 // @title Zenick Aggregator API
 // @version 1.0
 // @description This is the API documentation for Zenick Aggregator.
-// @host localhost:8000
+// @host api.lovelyglam.life
 // @BasePath /
 func main() {
 	// viper.SetConfigFile(".env")
