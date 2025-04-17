@@ -31,7 +31,7 @@ definitions:
       token_b:
         type: string
     type: object
-host: localhost:8000
+host: api.lovelyglam.life
 info:
   contact: {}
   description: This is the API documentation for Zenick Aggregator.
