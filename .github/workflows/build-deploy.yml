@@ -26,7 +26,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Convert REGISTRY to lowercase
-        run: echo "REGISTRY=$(echo $GIT_REGISTRY | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+        run: echo "REGISTRY_URL=$(echo $GIT_REGISTRY | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
       - name: Build and push Docker image
         run: |
           docker compose -f compose.build.yaml build --parallel
@@ -44,7 +44,7 @@ jobs:
       - name: Checkout Develop
         uses: actions/checkout@v3
       - name: Convert REGISTRY to lowercase
-        run: echo "REGISTRY=$(echo $GIT_REGISTRY | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+        run: echo "REGISTRY_URL=$(echo $GIT_REGISTRY | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
