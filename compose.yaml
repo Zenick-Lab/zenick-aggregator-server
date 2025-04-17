@@ -10,7 +10,7 @@ services:
       - "traefik.constraint-label=zenick-service"
       - "traefik.http.routers.zenick-backend.rule=Host(`api.${ROOT_DOMAIN}`)"
       - "traefik.http.routers.zenick-backend.entrypoints=web"
-      - "traefik.http.services.zenick-backend.loadbalancer.server.port=3000"
+      - "traefik.http.services.zenick-backend.loadbalancer.server.port=8000"
     environment:
       CONNECTION_STRING: host=zenick-postgres user=${DB_USER} password=${DB_PASSWORD} dbname=${DB_NAME} port=5432 sslmode=disable TimeZone=Asia/Ho_Chi_Minh
     networks:
