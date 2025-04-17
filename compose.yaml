@@ -19,6 +19,8 @@ services:
   zenick-postgres:
     container_name: zenick-postgres
     image: postgres:latest
+    ports:
+      - 5433:5432
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${DB_USER}
