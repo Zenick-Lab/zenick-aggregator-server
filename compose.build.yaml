@@ -1,0 +1,6 @@
+services:
+  zenick-backend:
+    image: ${REGISTRY_URL}/aggregator-server:latest
+    build:
+      context: server
+      dockerfile: Dockerfile

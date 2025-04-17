@@ -1,9 +1,61 @@
 services:
-  backend:
-    container_name: aggregator-server
-    build:
-      context: ./server
-      dockerfile: ./Dockerfile
-    ports:
-      - 3000:3000
+  zenick-backend:
+    container_name: zenick-aggregator-server
+    image: ${REGISTRY_URL}/aggregator-server:latest
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=zenick-network"
+      - "traefik.constraint=zenick-proxy-public"
+      - "traefik.constraint-label=zenick-service"
+      - "traefik.http.routers.zenick-backend.rule=Host(`api.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.zenick-backend.entrypoints=web"
+      - "traefik.http.services.zenick-backend.loadbalancer.server.port=3000"
+    environment:
+      CONNECTION_STRING: host=zenick-postgres user=${DB_USER} password=${DB_PASSWORD} dbname=${DB_NAME} port=5432 sslmode=disable TimeZone=Asia/Ho_Chi_Minh
+    networks:
+      - zenick-network
+
+  zenick-postgres:
+    container_name: zenick-postgres
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - zenick-postgres-data:/var/lib/postgresql/data
+    networks:
+      - zenick-network
+
+  zenick-cloudbeaver:
+    image: dbeaver/cloudbeaver:latest
+    container_name: zenick-cloudbeaver
     restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=zenick-network"
+      - "traefik.constraint=zenick-proxy-public"
+      - "traefik.constraint-label=zenick-service"
+      - "traefik.http.routers.zenick-cloudbeaver.rule=Host(`cloudbeaver.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.zenick-cloudbeaver.entrypoints=web"
+      - "traefik.http.services.zenick-cloudbeaver.loadbalancer.server.port=8978"
+    volumes:
+      - zenick-cloudbeaver:/opt/cloudbeaver/workspace
+    networks:
+      - zenick-network
+
+networks:
+  zenick-network:
+    name: zenick-network
+    driver: bridge
+    external: true
+
+volumes:
+  zenick-postgres-data:
+    name: zenick_postgres_data
+    driver: local
+  zenick-cloudbeaver:
+    name: zenick_cloudbeaver
+    driver: local
