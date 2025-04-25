@@ -40,6 +40,7 @@ func (u *liquidityPoolHistoryUsecase) GetLiquidityPoolHistoriesDetails(ctx conte
 			Provider:  liquidityPoolHistory.Provider.Name,
 			TokenA:    liquidityPoolHistory.TokenA.Name,
 			TokenB:    liquidityPoolHistory.TokenB.Name,
+			Link:      liquidityPoolHistory.Link,
 			APR:       liquidityPoolHistory.APR,
 			CreatedAt: liquidityPoolHistory.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 		})
@@ -80,6 +81,7 @@ func (u *liquidityPoolHistoryUsecase) GetLiquidityPoolHistoryByCondition(ctx con
 		Provider:  history.Provider.Name,
 		TokenA:    history.TokenA.Name,
 		TokenB:    history.TokenB.Name,
+		Link:      history.Link,
 		APR:       history.APR,
 		CreatedAt: history.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 	}

@@ -21,14 +21,6 @@ func GetAllHistoryLinks(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, historyLinks)
 }
 
-// @Summary Get detailed historyLinks
-// @Description Retrieve detailed historyLink records with related entities
-// @Tags HistoryLinks
-// @Accept json
-// @Produce json
-// @Success 200 {array} dto.HistoryLinkResponse
-// @Failure 500 {object} dto.ErrorResponse
-// @Router /historyLinks [get]
 func GetHistoryLinksDetails(ctx *gin.Context) {
 	module := dependency_injection.NewHistoryLinkUsecaseProvider()
 
@@ -40,18 +32,6 @@ func GetHistoryLinksDetails(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, historyLinks)
 }
 
-// @Summary Get historyLink by condition
-// @Description Retrieve historyLink based on filter conditions
-// @Tags HistoryLinks
-// @Accept json
-// @Produce json
-// @Param provider query string false "Provider name"
-// @Param token query string false "Token name"
-// @Param operation query string false "Operation name"
-// @Success 200 {object} dto.HistoryLinkResponse
-// @Failure 400 {object} dto.ErrorResponse
-// @Failure 500 {object} dto.ErrorResponse
-// @Router /historyLinks/GetHistoryLinkByCondition [get]
 func GetHistoryLinkByCondition(ctx *gin.Context) {
 	module := dependency_injection.NewHistoryLinkUsecaseProvider()
 
