@@ -10,14 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// @Summary Get detailed historyLinks
-// @Description Retrieve detailed historyLink records with related entities
-// @Tags HistoryLinks
-// @Accept json
-// @Produce json
-// @Success 200 {array} dto.HistoryLinkResponse
-// @Failure 500 {object} dto.ErrorResponse
-// @Router /historyLinks [get]
 func GetAllHistoryLinks(ctx *gin.Context) {
 	module := dependency_injection.NewHistoryLinkUsecaseProvider()
 
