@@ -102,6 +102,93 @@ const docTemplate = `{
                 }
             }
         },
+        "/historyLinks": {
+            "get": {
+                "description": "Retrieve detailed historyLink records with related entities",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "HistoryLinks"
+                ],
+                "summary": "Get detailed historyLinks",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.HistoryLinkResponse"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/historyLinks/GetHistoryLinkByCondition": {
+            "get": {
+                "description": "Retrieve historyLink based on filter conditions",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "HistoryLinks"
+                ],
+                "summary": "Get historyLink by condition",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Provider name",
+                        "name": "provider",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Token name",
+                        "name": "token",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Operation name",
+                        "name": "operation",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.HistoryLinkResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/liquidityPoolHistories": {
             "get": {
                 "description": "Retrieve detailed liquidityPoolHistory records with related entities",
@@ -188,6 +275,93 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/liquidityPoolHistoryLinks": {
+            "get": {
+                "description": "Retrieve detailed liquidityPoolHistory records with related entities",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LiquidityPoolHistoryLinks"
+                ],
+                "summary": "Get detailed liquidityPoolHistoryLinks",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.LiquidityPoolHistoryLinkResponse"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/liquidityPoolHistoryLinks/GetLiquidityPoolHistoryLinkByCondition": {
+            "get": {
+                "description": "Retrieve Liquidity Pool History Link based on filter conditions",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LiquidityPoolHistoryLinks"
+                ],
+                "summary": "Get Liquidity Pool History Link by condition",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Provider name",
+                        "name": "provider",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Token A name",
+                        "name": "token_a",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Token B name",
+                        "name": "token_b",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.LiquidityPoolHistoryLinkResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -195,6 +369,23 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.HistoryLinkResponse": {
+            "type": "object",
+            "properties": {
+                "link": {
+                    "type": "string"
+                },
+                "operation": {
+                    "type": "string"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "token": {
                     "type": "string"
                 }
             }
@@ -215,6 +406,23 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.LiquidityPoolHistoryLinkResponse": {
+            "type": "object",
+            "properties": {
+                "link": {
+                    "type": "string"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "token_a": {
+                    "type": "string"
+                },
+                "token_b": {
                     "type": "string"
                 }
             }

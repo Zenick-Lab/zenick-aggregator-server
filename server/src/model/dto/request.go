@@ -11,6 +11,12 @@ type GetHistoryRequest struct {
 	ToDate    time.Time `form:"to_date" time_format:"2006-01-02"`
 }
 
+type GetHistoryLinkRequest struct {
+	Provider  string `form:"provider"`
+	Token     string `form:"token"`
+	Operation string `form:"operation"`
+}
+
 type GetNewestHistoryRequest struct {
 	Provider  string `form:"provider"`
 	Token     string `form:"token"`
@@ -18,6 +24,12 @@ type GetNewestHistoryRequest struct {
 }
 
 type GetNewestLiquidityPoolHistoryRequest struct {
+	Provider string `form:"provider"`
+	TokenA   string `form:"token_a"`
+	TokenB   string `form:"token_b"`
+}
+
+type GetLiquidityPoolHistoryLinkRequest struct {
 	Provider string `form:"provider"`
 	TokenA   string `form:"token_a"`
 	TokenB   string `form:"token_b"`

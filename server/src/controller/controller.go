@@ -56,5 +56,13 @@ func Controller() *gin.Engine {
 	r.GET("/liquidityPoolHistories", GetLiquidityPoolHistoriesDetails)
 	r.GET("/liquidityPoolHistories/GetLiquidityPoolHistoryByCondition", GetLiquidityPoolHistoryByCondition)
 
+	// History Link routes
+	r.GET("/historyLinks", GetHistoryLinksDetails)
+	r.GET("/historyLinks/GetHistoryLinkByCondition", GetHistoryLinkByCondition)
+
+	// Liquidity Pool History routes
+	r.GET("/liquidityPoolHistoryLinks", GetLiquidityPoolHistoryLinksDetails)
+	r.GET("/liquidityPoolHistoryLinks/GetLiquidityPoolHistoryLinkByCondition", GetLiquidityPoolHistoryLinkByCondition)
+
 	return r
 }
