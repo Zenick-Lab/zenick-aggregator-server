@@ -9,7 +9,6 @@ type History struct {
 	ProviderID  uint      `gorm:"not null" json:"provider_id"`
 	TokenID     uint      `gorm:"not null" json:"token_id"`
 	OperationID uint      `gorm:"not null" json:"operation_id"`
-	Link        string    `gorm:"type:text;null" json:"link"`
 	APR         float32   `gorm:"type:real;not null" json:"apr"`
 	CreatedAt   time.Time `gorm:"type:timestamp;default:current_timestamp;not null" json:"created_at"`
 

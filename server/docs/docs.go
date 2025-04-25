@@ -102,6 +102,38 @@ const docTemplate = `{
                 }
             }
         },
+        "/historyLinks": {
+            "get": {
+                "description": "Retrieve detailed historyLink records with related entities",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "HistoryLinks"
+                ],
+                "summary": "Get detailed historyLinks",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.HistoryLinkResponse"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/liquidityPoolHistories": {
             "get": {
                 "description": "Retrieve detailed liquidityPoolHistory records with related entities",
@@ -188,6 +220,38 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/liquidityPoolHistoryLinks": {
+            "get": {
+                "description": "Retrieve detailed liquidityPoolHistory records with related entities",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "LiquidityPoolHistoryLinks"
+                ],
+                "summary": "Get detailed liquidityPoolHistoryLinks",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.LiquidityPoolHistoryLinkResponse"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -195,6 +259,23 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.HistoryLinkResponse": {
+            "type": "object",
+            "properties": {
+                "link": {
+                    "type": "string"
+                },
+                "operation": {
+                    "type": "string"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "token": {
                     "type": "string"
                 }
             }
@@ -218,6 +299,23 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.LiquidityPoolHistoryLinkResponse": {
+            "type": "object",
+            "properties": {
+                "link": {
+                    "type": "string"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "token_a": {
+                    "type": "string"
+                },
+                "token_b": {
                     "type": "string"
                 }
             }

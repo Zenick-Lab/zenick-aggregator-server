@@ -5,6 +5,7 @@ import (
 	"Zenick-Lab/zenick-aggregator-server/src/model"
 	"Zenick-Lab/zenick-aggregator-server/src/model/dto"
 	"context"
+	"time"
 
 	"github.com/sirupsen/logrus"
 )
@@ -40,7 +41,6 @@ func (u *historyUsecase) GetHistoriesDetails(ctx context.Context) ([]dto.History
 			Provider:  history.Provider.Name,
 			Token:     history.Token.Name,
 			Operation: history.Operation.Name,
-			Link:      history.Link,
 			APR:       history.APR,
 			CreatedAt: history.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 		})
@@ -92,7 +92,6 @@ func (u *historyUsecase) GetHistoriesByCondition(ctx context.Context, req *dto.G
 			Provider:  history.Provider.Name,
 			Token:     history.Token.Name,
 			Operation: history.Operation.Name,
-			Link:      history.Link,
 			APR:       history.APR,
 			CreatedAt: history.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 		})
@@ -102,16 +101,29 @@ func (u *historyUsecase) GetHistoriesByCondition(ctx context.Context, req *dto.G
 }
 
 func (u *historyUsecase) GetHistoryByCondition(ctx context.Context, req *dto.GetNewestHistoryRequest) (*dto.HistoryResponse, error) {
-	var history model.History
+	var result struct {
+		ProviderName  string
+		TokenName     string
+		OperationName string
+		Link          string
+		APR           float32
+		CreatedAt     time.Time
+	}
 
 	query := u.Repo.GetDB().WithContext(ctx).
-		Preload("Provider").
-		Preload("Token").
-		Preload("Operation").
 		Table("histories").
+		Select(`
+            providers.name AS provider_name,
+            tokens.name AS token_name,
+            operations.name AS operation_name,
+            history_links.link AS link,
+            histories.apr AS apr,
+            histories.created_at AS created_at
+        `).
 		Joins("JOIN providers ON providers.id = histories.provider_id").
 		Joins("JOIN tokens ON tokens.id = histories.token_id").
-		Joins("JOIN operations ON operations.id = histories.operation_id")
+		Joins("JOIN operations ON operations.id = histories.operation_id").
+		Joins("LEFT JOIN history_links ON history_links.provider_id = histories.provider_id AND history_links.token_id = histories.token_id AND history_links.operation_id = histories.operation_id")
 
 	if req.Provider != "" {
 		query = query.Where("providers.name ILIKE ?", "%"+req.Provider+"%")
@@ -123,19 +135,19 @@ func (u *historyUsecase) GetHistoryByCondition(ctx context.Context, req *dto.Get
 		query = query.Where("operations.name ILIKE ?", "%"+req.Operation+"%")
 	}
 
-	err := query.Order("created_at DESC").First(&history).Error
+	err := query.Order("histories.created_at DESC").Limit(1).Scan(&result).Error
 	if err != nil {
 		u.log.Errorf("Error fetching newest history by condition: %v", err)
 		return nil, err
 	}
 
 	response := &dto.HistoryResponse{
-		Provider:  history.Provider.Name,
-		Token:     history.Token.Name,
-		Operation: history.Operation.Name,
-		Link:      history.Link,
-		APR:       history.APR,
-		CreatedAt: history.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
+		Provider:  result.ProviderName,
+		Token:     result.TokenName,
+		Operation: result.OperationName,
+		Link:      result.Link,
+		APR:       result.APR,
+		CreatedAt: result.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 	}
 
 	return response, nil
