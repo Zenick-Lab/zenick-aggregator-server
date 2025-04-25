@@ -8,14 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// @Summary Get detailed liquidityPoolHistoryLinks
-// @Description Retrieve detailed liquidityPoolHistory records with related entities
-// @Tags LiquidityPoolHistoryLinks
-// @Accept json
-// @Produce json
-// @Success 200 {array} dto.LiquidityPoolHistoryLinkResponse
-// @Failure 500 {object} dto.ErrorResponse
-// @Router /liquidityPoolHistoryLinks [get]
 func GetLiquidityPoolHistoryLinksDetails(ctx *gin.Context) {
 	module := dependency_injection.NewLiquidityPoolHistoryLinkUsecaseProvider()
 
@@ -27,18 +19,6 @@ func GetLiquidityPoolHistoryLinksDetails(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, liquidityPoolHistories)
 }
 
-// @Summary Get Liquidity Pool History Link by condition
-// @Description Retrieve Liquidity Pool History Link based on filter conditions
-// @Tags LiquidityPoolHistoryLinks
-// @Accept json
-// @Produce json
-// @Param provider query string false "Provider name"
-// @Param token_a query string false "Token A name"
-// @Param token_b query string false "Token B name"
-// @Success 200 {object} dto.LiquidityPoolHistoryLinkResponse
-// @Failure 400 {object} dto.ErrorResponse
-// @Failure 500 {object} dto.ErrorResponse
-// @Router /liquidityPoolHistoryLinks/GetLiquidityPoolHistoryLinkByCondition [get]
 func GetLiquidityPoolHistoryLinkByCondition(ctx *gin.Context) {
 	module := dependency_injection.NewLiquidityPoolHistoryLinkUsecaseProvider()
 

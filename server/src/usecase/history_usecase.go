@@ -40,6 +40,7 @@ func (u *historyUsecase) GetHistoriesDetails(ctx context.Context) ([]dto.History
 			Provider:  history.Provider.Name,
 			Token:     history.Token.Name,
 			Operation: history.Operation.Name,
+			Link:      history.Link,
 			APR:       history.APR,
 			CreatedAt: history.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 		})
@@ -91,6 +92,7 @@ func (u *historyUsecase) GetHistoriesByCondition(ctx context.Context, req *dto.G
 			Provider:  history.Provider.Name,
 			Token:     history.Token.Name,
 			Operation: history.Operation.Name,
+			Link:      history.Link,
 			APR:       history.APR,
 			CreatedAt: history.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 		})
@@ -131,6 +133,7 @@ func (u *historyUsecase) GetHistoryByCondition(ctx context.Context, req *dto.Get
 		Provider:  history.Provider.Name,
 		Token:     history.Token.Name,
 		Operation: history.Operation.Name,
+		Link:      history.Link,
 		APR:       history.APR,
 		CreatedAt: history.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 	}

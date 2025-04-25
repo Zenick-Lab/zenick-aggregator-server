@@ -5,39 +5,19 @@ definitions:
       error:
         type: string
     type: object
-  dto.HistoryLinkResponse:
-    properties:
-      link:
-        type: string
-      operation:
-        type: string
-      provider:
-        type: string
-      token:
-        type: string
-    type: object
   dto.HistoryResponse:
     properties:
       apr:
         type: number
       created_at:
         type: string
+      link:
+        type: string
       operation:
         type: string
       provider:
         type: string
       token:
-        type: string
-    type: object
-  dto.LiquidityPoolHistoryLinkResponse:
-    properties:
-      link:
-        type: string
-      provider:
-        type: string
-      token_a:
-        type: string
-      token_b:
         type: string
     type: object
   dto.LiquidityPoolHistoryResponse:
@@ -45,6 +25,8 @@ definitions:
       apr:
         type: number
       created_at:
+        type: string
+      link:
         type: string
       provider:
         type: string
@@ -117,63 +99,6 @@ paths:
       summary: Get history by condition
       tags:
       - Histories
-  /historyLinks:
-    get:
-      consumes:
-      - application/json
-      description: Retrieve detailed historyLink records with related entities
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/dto.HistoryLinkResponse'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-      summary: Get detailed historyLinks
-      tags:
-      - HistoryLinks
-  /historyLinks/GetHistoryLinkByCondition:
-    get:
-      consumes:
-      - application/json
-      description: Retrieve historyLink based on filter conditions
-      parameters:
-      - description: Provider name
-        in: query
-        name: provider
-        type: string
-      - description: Token name
-        in: query
-        name: token
-        type: string
-      - description: Operation name
-        in: query
-        name: operation
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.HistoryLinkResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-      summary: Get historyLink by condition
-      tags:
-      - HistoryLinks
   /liquidityPoolHistories:
     get:
       consumes:
@@ -231,61 +156,4 @@ paths:
       summary: Get Liquidity Pool History by condition
       tags:
       - LiquidityPoolHistories
-  /liquidityPoolHistoryLinks:
-    get:
-      consumes:
-      - application/json
-      description: Retrieve detailed liquidityPoolHistory records with related entities
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/dto.LiquidityPoolHistoryLinkResponse'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-      summary: Get detailed liquidityPoolHistoryLinks
-      tags:
-      - LiquidityPoolHistoryLinks
-  /liquidityPoolHistoryLinks/GetLiquidityPoolHistoryLinkByCondition:
-    get:
-      consumes:
-      - application/json
-      description: Retrieve Liquidity Pool History Link based on filter conditions
-      parameters:
-      - description: Provider name
-        in: query
-        name: provider
-        type: string
-      - description: Token A name
-        in: query
-        name: token_a
-        type: string
-      - description: Token B name
-        in: query
-        name: token_b
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.LiquidityPoolHistoryLinkResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/dto.ErrorResponse'
-      summary: Get Liquidity Pool History Link by condition
-      tags:
-      - LiquidityPoolHistoryLinks
 swagger: "2.0"
