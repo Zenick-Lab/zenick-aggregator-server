@@ -49,18 +49,38 @@ func (u *historyUsecase) GetHistoriesDetails(ctx context.Context) ([]dto.History
 	return responses, nil
 }
 
-func (u *historyUsecase) GetHistoriesByCondition(ctx context.Context, req *dto.GetHistoryRequest) ([]dto.HistoryResponse, error) {
-	var histories []model.History
+func (u *historyUsecase) GetHistoriesByCondition(ctx context.Context, req *dto.GetNewestHistoryRequest) ([]dto.HistoryResponse, error) {
+	var results []struct {
+		ProviderName  string
+		TokenName     string
+		OperationName string
+		Link          string
+		APR           float32
+		CreatedAt     time.Time
+	}
+
+	subquery := u.Repo.GetDB().WithContext(ctx).
+		Table("histories").
+		Select("provider_id, MAX(created_at) AS latest_created_at").
+		Group("provider_id")
 
 	query := u.Repo.GetDB().WithContext(ctx).
-		Preload("Provider").
-		Preload("Token").
-		Preload("Operation").
 		Table("histories").
+		Select(`
+            providers.name AS provider_name,
+            tokens.name AS token_name,
+            operations.name AS operation_name,
+            history_links.link AS link,
+            histories.apr AS apr,
+            histories.created_at AS created_at
+        `).
 		Joins("JOIN providers ON providers.id = histories.provider_id").
 		Joins("JOIN tokens ON tokens.id = histories.token_id").
-		Joins("JOIN operations ON operations.id = histories.operation_id")
+		Joins("JOIN operations ON operations.id = histories.operation_id").
+		Joins("LEFT JOIN history_links ON history_links.provider_id = histories.provider_id AND history_links.token_id = histories.token_id AND history_links.operation_id = histories.operation_id").
+		Joins("INNER JOIN (?) AS latest_histories ON histories.provider_id = latest_histories.provider_id AND histories.created_at = latest_histories.latest_created_at", subquery)
 
+	// Apply filters if provided
 	if req.Provider != "" {
 		query = query.Where("providers.name ILIKE ?", "%"+req.Provider+"%")
 	}
@@ -70,30 +90,22 @@ func (u *historyUsecase) GetHistoriesByCondition(ctx context.Context, req *dto.G
 	if req.Operation != "" {
 		query = query.Where("operations.name ILIKE ?", "%"+req.Operation+"%")
 	}
-	if req.APR != nil {
-		query = query.Where("histories.apr = ?", *req.APR)
-	}
-	if !req.FromDate.IsZero() {
-		query = query.Where("created_at >= ?", req.FromDate)
-	}
 
-	if !req.ToDate.IsZero() {
-		query = query.Where("created_at <= ?", req.ToDate)
-	}
-	err := query.Find(&histories).Error
+	err := query.Scan(&results).Error
 	if err != nil {
 		u.log.Errorf("Error fetching histories by condition: %v", err)
 		return nil, err
 	}
 
 	var responses []dto.HistoryResponse
-	for _, history := range histories {
+	for _, result := range results {
 		responses = append(responses, dto.HistoryResponse{
-			Provider:  history.Provider.Name,
-			Token:     history.Token.Name,
-			Operation: history.Operation.Name,
-			APR:       history.APR,
-			CreatedAt: history.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
+			Provider:  result.ProviderName,
+			Token:     result.TokenName,
+			Operation: result.OperationName,
+			Link:      result.Link,
+			APR:       result.APR,
+			CreatedAt: result.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 		})
 	}
 

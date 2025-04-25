@@ -63,6 +63,44 @@ paths:
       summary: Get detailed histories
       tags:
       - Histories
+  /histories/GetHistoriesByCondition:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve histories based on filter conditions
+      parameters:
+      - description: Provider name
+        in: query
+        name: provider
+        type: string
+      - description: Token name
+        in: query
+        name: token
+        type: string
+      - description: Operation name
+        in: query
+        name: operation
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.HistoryResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get histories by condition
+      tags:
+      - Histories
   /histories/GetHistoryByCondition:
     get:
       consumes:
