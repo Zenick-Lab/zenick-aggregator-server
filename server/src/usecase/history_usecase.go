@@ -64,6 +64,16 @@ func (u *historyUsecase) GetHistoriesByCondition(ctx context.Context, req *dto.G
 		Select("provider_id, MAX(created_at) AS latest_created_at").
 		Group("provider_id")
 
+	if req.Token != "" {
+		subquery = subquery.Where("token_id IN (SELECT id FROM tokens WHERE name ILIKE ?)", "%"+req.Token+"%")
+	}
+	if req.Operation != "" {
+		subquery = subquery.Where("operation_id IN (SELECT id FROM operations WHERE name ILIKE ?)", "%"+req.Operation+"%")
+	}
+	if req.Provider != "" {
+		subquery = subquery.Where("provider_id IN (SELECT id FROM providers WHERE name ILIKE ?)", "%"+req.Provider+"%")
+	}
+
 	query := u.Repo.GetDB().WithContext(ctx).
 		Table("histories").
 		Select(`
@@ -79,17 +89,6 @@ func (u *historyUsecase) GetHistoriesByCondition(ctx context.Context, req *dto.G
 		Joins("JOIN operations ON operations.id = histories.operation_id").
 		Joins("LEFT JOIN history_links ON history_links.provider_id = histories.provider_id AND history_links.token_id = histories.token_id AND history_links.operation_id = histories.operation_id").
 		Joins("INNER JOIN (?) AS latest_histories ON histories.provider_id = latest_histories.provider_id AND histories.created_at = latest_histories.latest_created_at", subquery)
-
-	// Apply filters if provided
-	if req.Provider != "" {
-		query = query.Where("providers.name ILIKE ?", "%"+req.Provider+"%")
-	}
-	if req.Token != "" {
-		query = query.Where("tokens.name ILIKE ?", "%"+req.Token+"%")
-	}
-	if req.Operation != "" {
-		query = query.Where("operations.name ILIKE ?", "%"+req.Operation+"%")
-	}
 
 	err := query.Scan(&results).Error
 	if err != nil {
