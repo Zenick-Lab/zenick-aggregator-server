@@ -8,6 +8,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @Summary Get detailed liquidityPoolHistoryLinks
+// @Description Retrieve detailed liquidityPoolHistory records with related entities
+// @Tags LiquidityPoolHistoryLinks
+// @Accept json
+// @Produce json
+// @Success 200 {array} dto.LiquidityPoolHistoryLinkResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /liquidityPoolHistoryLinks [get]
 func GetLiquidityPoolHistoryLinksDetails(ctx *gin.Context) {
 	module := dependency_injection.NewLiquidityPoolHistoryLinkUsecaseProvider()
 

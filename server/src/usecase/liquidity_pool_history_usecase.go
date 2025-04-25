@@ -5,6 +5,7 @@ import (
 	"Zenick-Lab/zenick-aggregator-server/src/model"
 	"Zenick-Lab/zenick-aggregator-server/src/model/dto"
 	"context"
+	"time"
 
 	"github.com/sirupsen/logrus"
 )
@@ -40,7 +41,6 @@ func (u *liquidityPoolHistoryUsecase) GetLiquidityPoolHistoriesDetails(ctx conte
 			Provider:  liquidityPoolHistory.Provider.Name,
 			TokenA:    liquidityPoolHistory.TokenA.Name,
 			TokenB:    liquidityPoolHistory.TokenB.Name,
-			Link:      liquidityPoolHistory.Link,
 			APR:       liquidityPoolHistory.APR,
 			CreatedAt: liquidityPoolHistory.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 		})
@@ -50,16 +50,29 @@ func (u *liquidityPoolHistoryUsecase) GetLiquidityPoolHistoriesDetails(ctx conte
 }
 
 func (u *liquidityPoolHistoryUsecase) GetLiquidityPoolHistoryByCondition(ctx context.Context, req *dto.GetNewestLiquidityPoolHistoryRequest) (*dto.LiquidityPoolHistoryResponse, error) {
-	var history model.LiquidityPoolHistory
+	var result struct {
+		ProviderName string
+		TokenAName   string
+		TokenBName   string
+		Link         string
+		APR          float32
+		CreatedAt    time.Time
+	}
 
 	query := u.Repo.GetDB().WithContext(ctx).
-		Preload("Provider").
-		Preload("TokenA").
-		Preload("TokenB").
 		Table("liquidity_pool_histories").
+		Select(`
+            providers.name AS provider_name,
+            token_a.name AS token_a_name,
+            token_b.name AS token_b_name,
+            liquidity_pool_history_links.link AS link,
+            liquidity_pool_histories.apr AS apr,
+            liquidity_pool_histories.created_at AS created_at
+        `).
 		Joins("JOIN providers ON providers.id = liquidity_pool_histories.provider_id").
 		Joins("JOIN tokens AS token_a ON token_a.id = liquidity_pool_histories.token_a_id").
-		Joins("JOIN tokens AS token_b ON token_b.id = liquidity_pool_histories.token_b_id")
+		Joins("JOIN tokens AS token_b ON token_b.id = liquidity_pool_histories.token_b_id").
+		Joins("LEFT JOIN liquidity_pool_history_links ON liquidity_pool_history_links.provider_id = liquidity_pool_histories.provider_id AND liquidity_pool_history_links.token_a_id = liquidity_pool_histories.token_a_id AND liquidity_pool_history_links.token_b_id = liquidity_pool_histories.token_b_id")
 
 	if req.Provider != "" {
 		query = query.Where("providers.name ILIKE ?", "%"+req.Provider+"%")
@@ -71,19 +84,19 @@ func (u *liquidityPoolHistoryUsecase) GetLiquidityPoolHistoryByCondition(ctx con
 		query = query.Where("token_b.name ILIKE ?", "%"+req.TokenB+"%")
 	}
 
-	err := query.Order("created_at DESC").First(&history).Error
+	err := query.Order("liquidity_pool_histories.created_at DESC").First(&result).Error
 	if err != nil {
 		u.log.Errorf("Error fetching newest liquidity pool history by condition: %v", err)
 		return nil, err
 	}
 
 	response := &dto.LiquidityPoolHistoryResponse{
-		Provider:  history.Provider.Name,
-		TokenA:    history.TokenA.Name,
-		TokenB:    history.TokenB.Name,
-		Link:      history.Link,
-		APR:       history.APR,
-		CreatedAt: history.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
+		Provider:  result.ProviderName,
+		TokenA:    result.TokenAName,
+		TokenB:    result.TokenBName,
+		Link:      result.Link,
+		APR:       result.APR,
+		CreatedAt: result.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 	}
 
 	return response, nil

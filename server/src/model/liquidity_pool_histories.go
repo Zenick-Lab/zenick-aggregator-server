@@ -7,7 +7,6 @@ type LiquidityPoolHistory struct {
 	ProviderID uint      `gorm:"not null" json:"provider_id"`
 	TokenAID   uint      `gorm:"not null" json:"token_a_id"`
 	TokenBID   uint      `gorm:"not null" json:"token_b_id"`
-	Link       string    `gorm:"type:text;null" json:"link"`
 	APR        float32   `gorm:"type:real;not null" json:"apr"`
 	CreatedAt  time.Time `gorm:"type:timestamp;default:current_timestamp;not null" json:"created_at"`
 
