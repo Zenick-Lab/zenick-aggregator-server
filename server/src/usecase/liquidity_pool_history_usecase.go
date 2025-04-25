@@ -84,7 +84,7 @@ func (u *liquidityPoolHistoryUsecase) GetLiquidityPoolHistoryByCondition(ctx con
 		query = query.Where("token_b.name ILIKE ?", "%"+req.TokenB+"%")
 	}
 
-	err := query.Order("liquidity_pool_histories.created_at DESC").First(&result).Error
+	err := query.Order("liquidity_pool_histories.created_at DESC").Limit(1).Scan(&result).Error
 	if err != nil {
 		u.log.Errorf("Error fetching newest liquidity pool history by condition: %v", err)
 		return nil, err
