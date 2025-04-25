@@ -79,6 +79,9 @@ func main() {
 // 		&model.Operation{},
 // 		&model.History{},
 // 		&model.LiquidityPoolHistory{},
+// 		&model.Operation{},
+// 		&model.HistoryLink{},
+// 		&model.LiquidityPoolHistoryLink{},
 // 	)
 // 	if err != nil {
 // 		log.Fatalf("Failed to migrate the database: %v", err)
@@ -87,29 +90,29 @@ func main() {
 // 	log.Println("Database migration completed successfully!")
 
 // 	initDataSQL := `
-// 	INSERT INTO providers(name) VALUES
-// 		('suilend'),
-// 		('naviprotocol'),
-// 		('cetus'),
-// 		('haedal'),
-// 		('scallop'),
-// 		('bluefin'),
-// 		('bucket'),
-// 		('alpha_fi'),
-// 		('aftermath_finance'),
-// 		('kai_finance'),
-// 		('kriya'),
-// 		('volosui');
+// 		INSERT INTO providers(name) VALUES
+// 			('suilend'),
+// 			('naviprotocol'),
+// 			('cetus'),
+// 			('haedal'),
+// 			('scallop'),
+// 			('bluefin'),
+// 			('bucket'),
+// 			('alpha_fi'),
+// 			('aftermath_finance'),
+// 			('kai_finance'),
+// 			('kriya'),
+// 			('volosui');
 
-// 	INSERT INTO tokens(name) VALUES
-// 		('Sui'),
-// 		('USDC');
+// 		INSERT INTO tokens(name) VALUES
+// 			('Sui'),
+// 			('USDC');
 
-// 	INSERT INTO operations(name) VALUES
-// 		('borrow'),
-// 		('lend'),
-// 		('stake');
-// `
+// 		INSERT INTO operations(name) VALUES
+// 			('borrow'),
+// 			('lend'),
+// 			('stake');
+// 	`
 // 	_ = db.Exec(initDataSQL)
 // 	log.Println("Data initialization completed successfully!")
 // }
